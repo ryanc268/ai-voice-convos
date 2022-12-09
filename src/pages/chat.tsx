@@ -16,14 +16,18 @@ const Chat: NextPage = () => {
       body: JSON.stringify({
         speech: randomQuote(),
         voice: randomVoice(),
+        pace: 1,
       }),
-      headers: new Headers({
-        Authorization:
+      headers: {
+        accept: "application/json",
+        "uberduck-id": "anonymous",
+        "content-type": "application/json",
+        authorization:
           "Basic " +
           Buffer.from(
             env.NEXT_PUBLIC_UBERDUCK_KEY + ":" + env.NEXT_PUBLIC_UBERDUCK_SECRET
           ).toString("base64"),
-      }),
+      },
     })
       .then((response) => response.json())
       .then((json) => fetchAudioUrl(json.uuid));
@@ -34,7 +38,10 @@ const Chat: NextPage = () => {
     let audioPath: any = null;
 
     const interval = setInterval(() => {
-      fetch("https://api.uberduck.ai/speak-status?uuid=" + uuid, {})
+      fetch("https://api.uberduck.ai/speak-status?uuid=" + uuid, {
+        method: "GET",
+        headers: { accept: "application/json" },
+      })
         .then((response) => response.json())
         .then((json) => {
           finishedAt = json.finished_at;
