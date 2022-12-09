@@ -3,9 +3,9 @@ import Head from "next/head";
 import { useRef } from "react";
 import { env } from "../env/client.mjs";
 
-const chat: NextPage = () => {
-  let loading = useRef<HTMLDivElement>(null);
-  let button = useRef<HTMLButtonElement>(null);
+const Chat: NextPage = () => {
+  const loading = useRef<HTMLDivElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
 
   const generateAudioUUID = () => {
     loading!.current!.innerHTML = "Loading...";
@@ -132,4 +132,4 @@ const chat: NextPage = () => {
   );
 };
 
-export default chat;
+export default Chat;
