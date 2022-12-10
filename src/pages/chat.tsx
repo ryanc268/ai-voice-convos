@@ -1,3 +1,4 @@
+import axios from "axios";
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useRef } from "react";
@@ -11,26 +12,31 @@ const Chat: NextPage = () => {
     loading!.current!.innerHTML = "Loading...";
     button!.current!.disabled = true;
 
-    fetch("https://api.uberduck.ai/speak", {
-      method: "POST",
-      body: JSON.stringify({
-        speech: randomQuote(),
-        voice: randomVoice(),
-        pace: 1,
-      }),
-      headers: {
-        accept: "application/json",
-        "uberduck-id": "anonymous",
-        "content-type": "application/json",
-        authorization:
-          "Basic " +
-          Buffer.from(
-            env.NEXT_PUBLIC_UBERDUCK_KEY + ":" + env.NEXT_PUBLIC_UBERDUCK_SECRET
-          ).toString("base64"),
-      },
-    })
-      .then((response) => response.json())
-      .then((json) => fetchAudioUrl(json.uuid));
+    axios
+      .post(
+        "https://api.uberduck.ai/speak",
+        {
+          speech: randomQuote(),
+          voice: randomVoice(),
+          pace: 1,
+        },
+        {
+          headers: {
+            accept: "application/json",
+            "uberduck-id": "anonymous",
+            "content-type": "application/json",
+            authorization:
+              "Basic " +
+              Buffer.from(
+                env.NEXT_PUBLIC_UBERDUCK_KEY +
+                  ":" +
+                  env.NEXT_PUBLIC_UBERDUCK_SECRET
+              ).toString("base64"),
+          },
+        }
+      )
+      .then((response) => response.data)
+      .then((data) => fetchAudioUrl(data.uuid));
   };
 
   const fetchAudioUrl = (uuid: string) => {
@@ -38,14 +44,14 @@ const Chat: NextPage = () => {
     let audioPath: any = null;
 
     const interval = setInterval(() => {
-      fetch("https://api.uberduck.ai/speak-status?uuid=" + uuid, {
-        method: "GET",
-        headers: { accept: "application/json" },
-      })
-        .then((response) => response.json())
-        .then((json) => {
-          finishedAt = json.finished_at;
-          audioPath = json.path;
+      axios
+        .get("https://api.uberduck.ai/speak-status", {
+          params: { uuid },
+        })
+        .then((response) => response.data)
+        .then((data) => {
+          finishedAt = data.finished_at;
+          audioPath = data.path;
         });
       if (finishedAt) {
         window.clearInterval(interval);
