@@ -13,22 +13,26 @@ export const audioRouter = router({
       })
     )
     .query(({ input }) => {
-      const url = retrieveUrl(input.text, input.voice, input.pace).then(
-        (url) => {
-          console.log("Url sent to client: ", url);
-          return url;
-        }
-      );
-      return url;
+      return retrieveUrl(input.text, input.voice, input.pace);
+    }),
+  getVoiceUrlByUUID: publicProcedure
+    .input(
+      z.object({
+        uuid: z.string(),
+      })
+    )
+    .query(({ input }) => {
+      return getAudioUrl(input.uuid);
     }),
 });
 
 const retrieveUrl = async (text: string, voice: string, pace: number) => {
   const uuid = await postCreatVoiceUUID(text, voice, pace);
-  console.log("uuid", uuid);
   await new Promise((resolve) => setTimeout(resolve, 7000));
   const data = await getAudioUrl(uuid);
-  return data;
+  const combinedData = { ...data, uuid };
+  console.log(combinedData);
+  return combinedData;
 };
 
 const postCreatVoiceUUID = async (
@@ -61,15 +65,11 @@ const postCreatVoiceUUID = async (
 };
 
 const getAudioUrl = async (uuid: string) => {
-  const path = await axios
+  const data = await axios
     .get("https://api.uberduck.ai/speak-status", {
       params: { uuid },
     })
-    .then((response) => {
-      console.log(response.data);
-      return response.data;
-    })
-    .then((data) => data.path);
+    .then((response) => response.data);
 
-  return path;
+  return data;
 };
