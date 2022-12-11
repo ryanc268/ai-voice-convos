@@ -1,16 +1,7 @@
 import { z } from "zod";
 import axios from "axios";
-import axiosRetry from "axios-retry";
 import { env } from "../../../env/server.mjs";
 import { router, publicProcedure } from "../trpc";
-
-// axiosRetry(axios, {
-//   retries: 3,
-//   retryDelay: (retryCount) => {
-//     console.log(`Get Audio Path attempt: ${retryCount}`);
-//     return 2000;
-//   },
-// });
 
 export const audioRouter = router({
   getVoiceUrl: publicProcedure
@@ -33,10 +24,10 @@ export const audioRouter = router({
 });
 
 const retrieveUrl = async (text: string, voice: string, pace: number) => {
-  let uuid = await postCreatVoiceUUID(text, voice, pace);
+  const uuid = await postCreatVoiceUUID(text, voice, pace);
   console.log("uuid", uuid);
   await new Promise((resolve) => setTimeout(resolve, 7000));
-  let data = await getAudioUrl(uuid);
+  const data = await getAudioUrl(uuid);
   return data;
 };
 

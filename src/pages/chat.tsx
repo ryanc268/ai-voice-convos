@@ -9,7 +9,7 @@ const Chat: NextPage = () => {
   const [voice, setVoice] = useState<string>(randomVoice());
 
   const button = useRef<HTMLButtonElement>(null);
-  let { data, isLoading } = trpc.audio.getVoiceUrl.useQuery({
+  const { data, isLoading } = trpc.audio.getVoiceUrl.useQuery({
     text: quote,
     voice: voice,
     pace: 1,
